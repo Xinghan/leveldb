@@ -1201,7 +1201,7 @@ static void InitDefaultEnv()
 
     PerformanceCounters::Init(false);
 
-    gImmThreads=new HotThreadPool(7, ePerfDebug1, ePerfDebug2,
+    gImmThreads=new HotThreadPool(1, ePerfDebug1, ePerfDebug2,
                                   ePerfDebug3, ePerfDebug4);
 }
 

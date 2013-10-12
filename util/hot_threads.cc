@@ -108,6 +108,8 @@ HotThread::ThreadRoutine()
             // only wait if we are really sure no work pending
             if (0==m_Pool.m_WorkQueueAtomic)
 	    {
+                for(uint64_t ii = 0; ii != 1000000000; ++ii)
+                    asm volatile ("nop");
                 // yes, thread going to wait. set available now.
 	        m_Available=1;
                 m_Condition.Wait();
