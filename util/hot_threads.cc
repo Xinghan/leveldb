@@ -55,6 +55,7 @@ void *
 HotThread::ThreadRoutine()
 {
     ThreadTask * submission;
+    Logger *log = m_Pool.log;
 
     submission=NULL;
 
@@ -107,13 +108,15 @@ HotThread::ThreadRoutine()
 
             // only wait if we are really sure no work pending
             if (0==m_Pool.m_WorkQueueAtomic)
-	    {
+            {
+                Log(log, "### delaying before available=1\n");
                 for(uint64_t ii = 0; ii != 1000000000; ++ii)
                     asm volatile ("nop");
+                Log(log, "### setting available=1\n");
                 // yes, thread going to wait. set available now.
-	        m_Available=1;
+                m_Available=1;
                 m_Condition.Wait();
-	    }    // if
+            }    // if
 
             m_Available=0;    // safety
             submission=(ThreadTask *)m_DirectWork; // NULL is valid
@@ -131,7 +134,8 @@ HotThreadPool::HotThreadPool(
     enum PerformanceCountersEnum Direct,
     enum PerformanceCountersEnum Queued,
     enum PerformanceCountersEnum Dequeued,
-    enum PerformanceCountersEnum Weighted)
+    enum PerformanceCountersEnum Weighted,
+    Env *env)
     : m_WorkQueueAtomic(0),
           m_Shutdown(false),
           m_DirectCounter(Direct), m_QueuedCounter(Queued),
@@ -140,6 +144,8 @@ HotThreadPool::HotThreadPool(
     int ret_val;
     size_t loop;
     HotThread * hot_ptr;
+
+    env->NewLogger("/tmp/thread.log", &log);
 
     ret_val=0;
     for (loop=0; loop<PoolSize && 0==ret_val; ++loop)
@@ -234,6 +240,8 @@ HotThreadPool::FindWaitingThread(
         index=(index+1)%pool_size;
 
     } while(index!=start && !ret_flag);
+
+    Log(log, "### FindWaitingThread = %s\n", ret_flag ? "true" : "false");
 
     return(ret_flag);
 

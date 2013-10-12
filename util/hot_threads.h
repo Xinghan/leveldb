@@ -36,6 +36,7 @@
 #include "leveldb/perf_count.h"
 #include "port/port.h"
 #include "util/mutexlock.h"
+#include "leveldb/env.h"
 
 namespace leveldb
 {
@@ -97,12 +98,15 @@ public:
     enum PerformanceCountersEnum m_DequeuedCounter;
     enum PerformanceCountersEnum m_WeightedCounter;
 
+    Logger *log;
+
 public:
     HotThreadPool(const size_t thread_pool_size,
                   enum PerformanceCountersEnum Direct,
                   enum PerformanceCountersEnum Queued,
                   enum PerformanceCountersEnum Dequeued,
-                  enum PerformanceCountersEnum Weighted);
+                  enum PerformanceCountersEnum Weighted,
+                  Env *env);
 
     virtual ~HotThreadPool();
 
